@@ -101,6 +101,7 @@ int sys_shutdown(void)
 
 extern int sched_trace_enabled;
 extern int sched_trace_counter;
+// extern int child_first;
 int sys_enable_sched_trace(void)
 {
   if (argint(0, &sched_trace_enabled) < 0)
@@ -112,3 +113,10 @@ int sys_enable_sched_trace(void)
 
   return 0;
 }
+int sys_fork_winner(void){
+  int winner;
+  argint(0,&winner);
+  fork_winner(winner);
+  return 0;
+}
+

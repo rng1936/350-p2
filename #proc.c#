@@ -14,8 +14,6 @@ struct {
 
 static struct proc *initproc;
 
-int child_first;
-
 int nextpid = 1;
 int sched_trace_enabled = 0; // ZYF: for OS CPU/process project
 int sched_trace_counter = 0; // ZYF: counter for print formatting
@@ -115,8 +113,6 @@ found:
   p->context = (struct context*)sp;
   memset(p->context, 0, sizeof *p->context);
   p->context->eip = (uint)forkret;
-
-
   return p;
 }
 
@@ -194,6 +190,7 @@ fork(void)
     return -1;
   }
 
+  
   // Copy process state from proc.
   if((np->pgdir = copyuvm(curproc->pgdir, curproc->sz)) == 0){
     kfree(np->kstack);
@@ -219,14 +216,9 @@ fork(void)
 
   acquire(&ptable.lock);
   np->state = RUNNABLE;
-
+  
   release(&ptable.lock);
 
-  if(child_first==1){
-
-    yield();
-
-  }
   return pid;
 }
 
@@ -318,10 +310,6 @@ wait(void)
     // Wait for children to exit.  (See wakeup1 call in proc_exit.)
     sleep(curproc, &ptable.lock);  //DOC: wait-sleep
   }
-}
-
-void fork_winner(int winner){
-    child_first = winner;
 }
 
 //PAGEBREAK: 42

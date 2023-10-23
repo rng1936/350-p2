@@ -179,7 +179,7 @@ UPROGS=\
 	_shutdown \
 	_fork_rc_test \
 	_schdtest \
-
+	
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)
 
