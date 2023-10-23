@@ -15,6 +15,7 @@ struct {
 static struct proc *initproc;
 
 int child_first;
+int stride_bit;
 
 int nextpid = 1;
 int sched_trace_enabled = 0; // ZYF: for OS CPU/process project
@@ -324,6 +325,10 @@ void fork_winner(int winner){
     child_first = winner;
 }
 
+  void set_sched(int bit){
+    stride_bit = bit;
+    cprintf("Bit is %d",stride_bit);
+  }
 //PAGEBREAK: 42
 // Per-CPU process scheduler.
 // Each CPU calls scheduler() after setting itself up.
@@ -567,4 +572,7 @@ procdump(void)
     }
     cprintf("\n");
   }
+
+ 
+
 }
