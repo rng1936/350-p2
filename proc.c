@@ -70,6 +70,47 @@ myproc(void) {
   return p;
 }
 
+int getActiveProcNum(void) {
+  struct proc *p;
+  int count = 0;
+
+  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+    if (p->state == RUNNING || p->state == RUNNABLE) count++;
+  }
+
+  return count;
+}
+
+int distributeTickets(void) {
+  struct proc *p;
+
+  acquire(&ptable.lock);
+
+  int tickets = STRIDE_TOTAL_TICKETS / getActiveProcNum();
+  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+    if (p->state == RUNNING || p->state == RUNNABLE) p->tickets = tickets;
+  }
+
+  release(&ptable.lock);
+  return 0;
+}
+
+struct proc* findProc(int procPid) {
+  struct proc *p;
+
+  acquire(&ptable.lock);
+
+  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+    if ((p->state == RUNNING || p->state == RUNNABLE) && p->pid == procPid) {
+      release(&ptable.lock);
+      return p;
+    }
+  }
+
+  release(&ptable.lock);
+  return NULL;
+}
+
 //PAGEBREAK: 32
 // Look in the process table for an UNUSED proc.
 // If found, change state to EMBRYO and initialize
@@ -157,6 +198,8 @@ userinit(void)
   p->state = RUNNABLE;
 
   release(&ptable.lock);
+
+  distributeTickets();
 }
 
 // Grow current process's memory by n bytes.
@@ -228,6 +271,8 @@ fork(void)
     yield();
 
   }
+
+  distributeTickets();
   return pid;
 }
 
@@ -274,6 +319,7 @@ exit(void)
   // Jump into the scheduler, never to return.
   curproc->state = ZOMBIE;
   sched();
+  distributeTickets();
   panic("zombie exit");
 }
 
@@ -321,48 +367,22 @@ wait(void)
   }
 }
 
-int getActiveProcNum(void) {
-  struct proc *p;
-  int count = 0;
-
-  acquire(&ptable.lock);
-
-  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
-    if (p->state != UNUSED) count++;
-  }
-
-  release(&ptable.lock);
-  return count;
-}
-
-int findProc(int procPid) {
-  struct proc *p;
-
-  acquire(&ptable.lock);
-
-  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
-    if (p->state != UNUSED && p->pid == procPid) {
-      release(&ptable.lock);
-      return 1;
-    }
-  }
-
-  release(&ptable.lock);
-  return -1;
-}
-
 void fork_winner(int winner){
     child_first = winner;
 }
 
 void set_sched(int bit){
   stride_bit = bit;
-  cprintf("Bit is %d",stride_bit);
+  cprintf("Bit is %d\n",stride_bit);
 }
 
 int transfer_tickets(int pid, int tickets) {
-  
-  return 0;
+  struct proc *curproc = myproc();
+  struct proc *p = findProc(pid);
+
+  p->tickets += tickets;
+  curproc->tickets -= tickets;
+  return curproc->tickets;
 }
 //PAGEBREAK: 42
 // Per-CPU process scheduler.

@@ -120,6 +120,12 @@ void            userinit(void);
 int             wait(void);
 void            wakeup(void*);
 void            yield(void);
+int             getActiveProcNum(void);
+int             distributeTickets(void);
+struct proc*    findProc(int);
+int             transfer_tickets(int, int);
+void            set_sched(int);
+void            fork_winner(int);
 
 // swtch.S
 void            swtch(struct context**, struct context*);
