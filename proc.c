@@ -321,14 +321,49 @@ wait(void)
   }
 }
 
+int getActiveProcNum(void) {
+  struct proc *p;
+  int count = 0;
+
+  acquire(&ptable.lock);
+
+  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+    if (p->state != UNUSED) count++;
+  }
+
+  release(&ptable.lock);
+  return count;
+}
+
+int findProc(int procPid) {
+  struct proc *p;
+
+  acquire(&ptable.lock);
+
+  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+    if (p->state != UNUSED && p->pid == procPid) {
+      release(&ptable.lock);
+      return 1;
+    }
+  }
+
+  release(&ptable.lock);
+  return -1;
+}
+
 void fork_winner(int winner){
     child_first = winner;
 }
 
-  void set_sched(int bit){
-    stride_bit = bit;
-    cprintf("Bit is %d",stride_bit);
-  }
+void set_sched(int bit){
+  stride_bit = bit;
+  cprintf("Bit is %d",stride_bit);
+}
+
+int transfer_tickets(int pid, int tickets) {
+  
+  return 0;
+}
 //PAGEBREAK: 42
 // Per-CPU process scheduler.
 // Each CPU calls scheduler() after setting itself up.

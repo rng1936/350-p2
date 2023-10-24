@@ -7,6 +7,8 @@
 #include "mmu.h"
 #include "proc.h"
 
+#define STRIDE_TOTAL_TICKETS 100
+
 int
 sys_fork(void)
 {
@@ -124,5 +126,20 @@ int sys_set_sched(void){
   int bit;
   argint(0,&bit);
   set_sched(bit);
+  return 0;
+}
+
+int sys_transfer_tickets(void) {
+  int recipient;
+  int numTickets;
+  argint(0, &recipient);
+  argint(1, &numTickets);
+  
+  if (numTickets < 0) return -1;
+  int ticket_p = (STRIDE_TOTAL_TICKETS / getActiveProcNum());
+  if (numTickets > ticket_p - 1) return -2;
+  if (findProc(recipient) == -1) return -3;
+  
+  transfer_tickets(recipient, numTickets);
   return 0;
 }
