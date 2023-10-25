@@ -134,7 +134,7 @@ int sys_transfer_tickets(void) {
   argint(1, &numTickets);
   
   if (numTickets < 0) return -1;
-  int ticket_p = (STRIDE_TOTAL_TICKETS / getActiveProcNum());
+  int ticket_p = k_tickets_owned(sys_getpid()); // changed
   if (numTickets > ticket_p - 1) return -2;
   if (findProc(recipient) == NULL) return -3;
   
