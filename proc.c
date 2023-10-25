@@ -94,12 +94,21 @@ int distributeTickets(void) {
   release(&ptable.lock);
   return 0;
 }
-
+/*
 int tickets_owned() {
     int pid = 123;
     int numTickets = tickets_owned(pid);
     cprintf(1, "Process %d owns %d tickets.\n", pid, numTickets);
     exit();
+} */
+
+int k_tickets_owned(int pid) { // implementation from syscall moved here
+  struct proc *p = findProc(pid);
+    
+  if (p == NULL)
+    return -2; 
+  
+  return p->tickets;
 }
 
 

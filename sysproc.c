@@ -139,16 +139,12 @@ int sys_transfer_tickets(void) {
   if (findProc(recipient) == NULL) return -3;
   
   transfer_tickets(recipient, numTickets);
-  return tickets_owned(sys_getpid());
+  return k_tickets_owned(sys_getpid()); // kernel imp.
 }
 
 int sys_tickets_owned(void) {
     int pid;
     if (argint(0, &pid) < 0)
         return -1;
-    struct proc *p = findProc(pid);
-    
-    if (p == NULL)
-        return -2; 
-    return p->tickets;
+    return k_tickets_owned(pid); // calls kernel imp. after getting arguments
 }
