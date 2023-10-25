@@ -95,6 +95,14 @@ int distributeTickets(void) {
   return 0;
 }
 
+int tickets_owned() {
+    int pid = 123;
+    int numTickets = tickets_owned(pid);
+    cprintf(1, "Process %d owns %d tickets.\n", pid, numTickets);
+    exit();
+}
+
+
 struct proc* findProc(int procPid) {
   struct proc *p;
 

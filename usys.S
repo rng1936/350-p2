@@ -33,4 +33,5 @@ SYSCALL(shutdown)
 SYSCALL(enable_sched_trace)
 SYSCALL(fork_winner)
 SYSCALL(set_sched)
-SYSCALL(transfer_tickets);
+SYSCALL(transfer_tickets)
+SYSCALL(tickets_owned);
