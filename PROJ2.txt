@@ -1,1 +1,2 @@
-
+Matthew Zhou - Made sys functions and sys wrapper functions, for child first. With in the fork function based on if the if the child first variable had a 0 or 1; then fork function it will yeild or not.
+Also made sys funcitons and wrapper functions for the set schded. Had a global variable for if stride sched would to be used as the scheduing process or not.
