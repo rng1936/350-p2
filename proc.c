@@ -88,7 +88,10 @@ int distributeTickets(void) {
 
   int tickets = STRIDE_TOTAL_TICKETS / getActiveProcNum();
   for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
-    if (p->state == RUNNING || p->state == RUNNABLE) p->tickets = tickets;
+    if (p->state == RUNNING || p->state == RUNNABLE) {
+        p->tickets = tickets;
+        p->stride = (STRIDE_TOTAL_TICKETS*10)/p->tickets;
+    }
   }
 
   release(&ptable.lock);
@@ -398,7 +401,9 @@ int transfer_tickets(int pid, int tickets) {
   struct proc *p = findProc(pid);
 
   p->tickets += tickets;
+  p->stride = (STRIDE_TOTAL_TICKETS*10)/p->tickets;
   curproc->tickets -= tickets;
+  curproc->stride = (STRIDE_TOTAL_TICKETS*10/curproc->tickets);
   return curproc->tickets;
 }
 //PAGEBREAK: 42
