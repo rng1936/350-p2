@@ -91,6 +91,7 @@ int distributeTickets(void) {
     if (p->state == RUNNING || p->state == RUNNABLE) {
         p->tickets = tickets;
         p->stride = (STRIDE_TOTAL_TICKETS*10)/p->tickets;
+        p->pass = 0;
     }
   }
 
@@ -422,7 +423,7 @@ scheduler(void)
   c->proc = 0;
   
   int ran = 0; // CS 350/550: to solve the 100%-CPU-utilization-when-idling problem
-
+  rr:
   for(;;){
     // Enable interrupts on this processor.
     sti();
@@ -449,12 +450,60 @@ scheduler(void)
           // Process is done running for now.
           // It should have changed its p->state before coming back.
           c->proc = 0;
+
+          if (stride_bit == 1){
+            release(&ptable.lock);
+            goto stride;
+          }
     }
     release(&ptable.lock);
 
     if (ran == 0){
         halt();
     }
+  }
+  // stride for
+  stride:
+  for (;;) {
+    sti();
+    acquire(&ptable.lock);
+    ran = 0;
+    for (;;) {
+      ran = 0;
+      int minPass = 2147483647; // largest int
+      struct proc *minPassProc = NULL;
+      // loop finds proces with lowest pass value
+      for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+        if (p->state == RUNNABLE && p->pass < minPass) {
+          minPass = p->pass;
+          minPassProc = p;
+          ran = 1;
+        }
+      }
+
+      if (ran == 0) {
+        break;
+      }
+
+      // update pass value of scheduled process
+      minPassProc->pass += minPassProc->stride;
+
+      // run chosen process
+      c->proc = minPassProc;
+      switchuvm(minPassProc);
+      minPassProc->state = RUNNING;
+
+      swtch(&(c->scheduler), minPassProc->context);
+      switchkvm();
+
+      c->proc = 0;
+      if (stride_bit == 0) {
+        release(&ptable.lock);
+        goto rr;
+      }
+    }
+    release(&ptable.lock);
+    halt();
   }
 }
 
