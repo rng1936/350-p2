@@ -1,2 +1,4 @@
 Matthew Zhou - Made sys functions and sys wrapper functions, for child first. With in the fork function based on if the if the child first variable had a 0 or 1; then fork function it will yeild or not.
 Also made sys funcitons and wrapper functions for the set schded. Had a global variable for if stride sched would to be used as the scheduing process or not.
+
+Ronald Ng - I implemented transfer_tickets() and distributeTickets(). transfer_tickets() transfers tickets from the current process to a target process. distributeTickets() distributes the number of tickets evenly to all active processes as well as whenever a process added or removed in the system. I also added the helper functions getActiveProcNum() to find the number of active processes and findProc() to find a process using the pid as the argument. 
